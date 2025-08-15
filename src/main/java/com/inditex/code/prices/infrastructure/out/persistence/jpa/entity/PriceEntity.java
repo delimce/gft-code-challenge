@@ -1,4 +1,4 @@
-package com.inditex.code.prices.infrastructure.out.persistence.entity;
+package com.inditex.code.prices.infrastructure.out.persistence.jpa.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

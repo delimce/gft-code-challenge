@@ -1,10 +1,11 @@
-package com.inditex.code.prices.infrastructure.out.persistence.repository;
+package com.inditex.code.prices.infrastructure.out.persistence.jpa.repository;
 
-import com.inditex.code.prices.infrastructure.out.persistence.entity.PriceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.inditex.code.prices.infrastructure.out.persistence.jpa.entity.PriceEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
  * Spring Data JPA repository for Price entities.
  */
 @Repository
-public interface PriceRepository extends JpaRepository<PriceEntity, Long> {
+public interface PriceJpaRepository extends JpaRepository<PriceEntity, Long> {
 
     /**
      * Find prices by filters: active date (between start and end dates), product
@@ -29,21 +30,21 @@ public interface PriceRepository extends JpaRepository<PriceEntity, Long> {
      * @return list of matching prices with highest priority per product
      */
     @Query("""
-        SELECT p
-        FROM PriceEntity p
-        WHERE
-            (:activeDate IS NULL OR (p.startDate <= :activeDate AND p.endDate >= :activeDate))
-        AND (:productId IS NULL OR p.productId = :productId)
-        AND (:brandId  IS NULL OR p.brandId  = :brandId)
-        AND p.priority = (
-                SELECT MAX(p2.priority)
-                FROM PriceEntity p2
-                WHERE p2.productId = p.productId
-                  AND p2.brandId   = p.brandId
-                  AND (:activeDate IS NULL OR (p2.startDate <= :activeDate AND p2.endDate >= :activeDate))
-            )
-        ORDER BY p.productId, p.brandId, p.priority DESC
-        """)
+            SELECT p
+            FROM PriceEntity p
+            WHERE
+                (:activeDate IS NULL OR (p.startDate <= :activeDate AND p.endDate >= :activeDate))
+            AND (:productId IS NULL OR p.productId = :productId)
+            AND (:brandId  IS NULL OR p.brandId  = :brandId)
+            AND p.priority = (
+                    SELECT MAX(p2.priority)
+                    FROM PriceEntity p2
+                    WHERE p2.productId = p.productId
+                      AND p2.brandId   = p.brandId
+                      AND (:activeDate IS NULL OR (p2.startDate <= :activeDate AND p2.endDate >= :activeDate))
+                )
+            ORDER BY p.productId, p.brandId, p.priority DESC
+            """)
     List<PriceEntity> findByFilters(
             @Param("activeDate") LocalDateTime activeDate,
             @Param("productId") Long productId,

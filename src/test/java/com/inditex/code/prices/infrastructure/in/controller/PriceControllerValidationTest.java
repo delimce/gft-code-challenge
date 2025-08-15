@@ -1,7 +1,7 @@
 package com.inditex.code.prices.infrastructure.in.controller;
 
 import com.inditex.code.prices.application.services.price.validation.PriceFilterValidator;
-import com.inditex.code.prices.domain.dto.price.PriceDto;
+import com.inditex.code.prices.domain.dto.price.PriceResponseDto;
 import com.inditex.code.prices.domain.port.PricePort;
 import com.inditex.code.prices.infrastructure.in.exception.GlobalExceptionHandler;
 
@@ -61,12 +61,12 @@ class PriceControllerValidationTest {
     void testValidRequestParams() throws Exception {
         // Given
         LocalDateTime now = LocalDateTime.now();
-        PriceDto priceDto = new PriceDto(
-                1L, 1L, 35455L, 1, now, now.plusDays(1),
-                0, new BigDecimal("35.50"), "EUR");
+        PriceResponseDto priceResponseDto = new PriceResponseDto(
+                35455L, 1L, 1, now, now.plusDays(1),
+                new BigDecimal("35.50"));
 
         when(pricePort.getPricesFiltered(any(), eq(35455L), eq(1L)))
-                .thenReturn(List.of(priceDto));
+                .thenReturn(List.of(priceResponseDto));
 
         // When & Then
         mockMvc.perform(get("/prices")

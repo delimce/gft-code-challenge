@@ -1,7 +1,7 @@
 package com.inditex.code.prices.infrastructure.in.controller;
 
 import com.inditex.code.prices.application.services.price.validation.PriceFilterValidator;
-import com.inditex.code.prices.domain.dto.price.PriceDto;
+import com.inditex.code.prices.domain.dto.price.PriceResponseDto;
 import com.inditex.code.prices.domain.port.PricePort;
 
 import org.junit.jupiter.api.Test;
@@ -37,17 +37,17 @@ class PriceControllerTest {
         @Test
         void getPrices_shouldReturnListOfPrices() throws Exception {
                 // Given
-                PriceDto price1 = new PriceDto(1L, 1L, 35455L, 1,
+                PriceResponseDto price1 = new PriceResponseDto(35455L, 1L, 1,
                                 LocalDateTime.of(2020, 6, 14, 0, 0),
                                 LocalDateTime.of(2020, 12, 31, 23, 59),
-                                0, new BigDecimal("35.50"), "EUR");
+                                new BigDecimal("35.50"));
 
-                PriceDto price2 = new PriceDto(2L, 1L, 35455L, 2,
+                PriceResponseDto price2 = new PriceResponseDto(35455L, 1L, 2,
                                 LocalDateTime.of(2020, 6, 14, 15, 0),
                                 LocalDateTime.of(2020, 6, 14, 18, 30),
-                                1, new BigDecimal("25.45"), "EUR");
+                                new BigDecimal("25.45"));
 
-                List<PriceDto> prices = Arrays.asList(price1, price2);
+                List<PriceResponseDto> prices = Arrays.asList(price1, price2);
 
                 when(pricePort.getPrices()).thenReturn(prices);
 
@@ -55,19 +55,13 @@ class PriceControllerTest {
                 mockMvc.perform(get("/prices"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$", hasSize(2)))
-                                .andExpect(jsonPath("$[0].id", is(1)))
-                                .andExpect(jsonPath("$[0].brandId", is(1)))
                                 .andExpect(jsonPath("$[0].productId", is(35455)))
+                                .andExpect(jsonPath("$[0].brandId", is(1)))
                                 .andExpect(jsonPath("$[0].priceList", is(1)))
-                                .andExpect(jsonPath("$[0].priority", is(0)))
                                 .andExpect(jsonPath("$[0].price", is(35.50)))
-                                .andExpect(jsonPath("$[0].currency", is("EUR")))
-                                .andExpect(jsonPath("$[1].id", is(2)))
-                                .andExpect(jsonPath("$[1].brandId", is(1)))
                                 .andExpect(jsonPath("$[1].productId", is(35455)))
+                                .andExpect(jsonPath("$[1].brandId", is(1)))
                                 .andExpect(jsonPath("$[1].priceList", is(2)))
-                                .andExpect(jsonPath("$[1].priority", is(1)))
-                                .andExpect(jsonPath("$[1].price", is(25.45)))
-                                .andExpect(jsonPath("$[1].currency", is("EUR")));
+                                .andExpect(jsonPath("$[1].price", is(25.45)));
         }
 }

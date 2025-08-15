@@ -29,29 +29,21 @@ class PriceControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].brandId", is(1)))
                 .andExpect(jsonPath("$[0].productId", is(35455)))
                 .andExpect(jsonPath("$[0].priceList", is(1)))
-                .andExpect(jsonPath("$[0].priority", is(0)))
                 .andExpect(jsonPath("$[0].price", is(35.50)))
-                .andExpect(jsonPath("$[0].currency", is("EUR")))
                 // Second price record
                 .andExpect(jsonPath("$[1].brandId", is(1)))
                 .andExpect(jsonPath("$[1].productId", is(35455)))
                 .andExpect(jsonPath("$[1].priceList", is(2)))
-                .andExpect(jsonPath("$[1].priority", is(1)))
                 .andExpect(jsonPath("$[1].price", is(25.45)))
-                .andExpect(jsonPath("$[1].currency", is("EUR")))
                 // Third price record
                 .andExpect(jsonPath("$[2].brandId", is(1)))
                 .andExpect(jsonPath("$[2].productId", is(35455)))
                 .andExpect(jsonPath("$[2].priceList", is(3)))
-                .andExpect(jsonPath("$[2].priority", is(1)))
                 .andExpect(jsonPath("$[2].price", is(30.50)))
-                .andExpect(jsonPath("$[2].currency", is("EUR")))
                 // Fourth price record
                 .andExpect(jsonPath("$[3].brandId", is(1)))
                 .andExpect(jsonPath("$[3].productId", is(35455)))
                 .andExpect(jsonPath("$[3].priceList", is(4)))
-                .andExpect(jsonPath("$[3].priority", is(1)))
-                .andExpect(jsonPath("$[3].price", is(38.95)))
-                .andExpect(jsonPath("$[3].currency", is("EUR")));
+                .andExpect(jsonPath("$[3].price", is(38.95)));
     }
 }

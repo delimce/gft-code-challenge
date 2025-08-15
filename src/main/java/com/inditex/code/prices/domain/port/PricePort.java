@@ -1,12 +1,10 @@
 package com.inditex.code.prices.domain.port;
 
-import com.inditex.code.prices.domain.dto.price.PriceDto;
+import com.inditex.code.prices.domain.dto.price.PriceResponseDto;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Input port for price operations.
- */
 public interface PricePort {
 
     /**
@@ -14,7 +12,7 @@ public interface PricePort {
      * 
      * @return list of price DTOs
      */
-    List<PriceDto> getPrices();
+    List<PriceResponseDto> getPrices();
 
     /**
      * Retrieves filtered prices from the system.
@@ -25,5 +23,5 @@ public interface PricePort {
      * @param brandId    ID of the brand to filter by
      * @return list of filtered price DTOs
      */
-    List<PriceDto> getPricesFiltered(LocalDateTime activeDate, Long productId, Long brandId);
+    List<PriceResponseDto> getPricesFiltered(LocalDateTime activeDate, Long productId, Long brandId);
 }
