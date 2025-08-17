@@ -51,9 +51,13 @@ public class GlobalExceptionHandler {
         body.put("error", "Bad Request");
 
         String parameterName = ex.getName();
+        Class<?> requiredType = ex.getRequiredType();
+        String expectedTypeName = requiredType != null
+                ? getTargetTypeName(requiredType.getSimpleName())
+                : "expected type";
         String errorMessage = String.format("Parameter '%s' should be a valid %s",
                 parameterName,
-                getTargetTypeName(ex.getRequiredType().getSimpleName()));
+                expectedTypeName);
 
         body.put("message", errorMessage);
         body.put("errors", List.of(errorMessage));
