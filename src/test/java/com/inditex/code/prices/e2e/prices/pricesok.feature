@@ -1,4 +1,4 @@
-Feature: Prices API Test Cases
+Feature: Api de precios - casos positivos (escenarios OK)
 
   Background:
     # Ensure baseUrl is available even if karate-config.js wasn't applied
