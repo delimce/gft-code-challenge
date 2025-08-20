@@ -257,21 +257,20 @@ curl "http://localhost:8083/v1/prices?activeDate=2020-06-14T10:00:00&productId=3
 
 ## 🎯 Ejecución de Tests E2E
 
-Los tests End-to-End utilizan **Karate Framework** para validar los casos de uso requeridos.
+Los tests End-to-End utilizan **Karate Framework** para validar los casos de uso requeridos y casos de error.
 
 ### Ejecutar Tests E2E
 
 ```bash
 # Ejecutar solo tests E2E de Karate
 ./mvnw test -Dtest="KarateTests"
-
-# Ejecutar tests E2E con la aplicación ejecutándose
-./mvnw test -Dtest="*Karate*"
 ```
 
 ### Casos de Prueba E2E Implementados
 
-Los siguientes escenarios están automatizados según los requerimientos:
+#### Escenarios Positivos (OK) - `pricesok.feature`
+
+Los siguientes escenarios están automatizados según los requerimientos originales:
 
 | Test | Fecha/Hora | Producto | Brand | Precio Esperado | Lista de Precios |
 |------|------------|----------|-------|-----------------|------------------|
@@ -281,13 +280,30 @@ Los siguientes escenarios están automatizados según los requerimientos:
 | **Test 4** | 2020-06-15 10:00 | 35455 | 1 (ZARA) | 30.50 EUR | 3 |
 | **Test 5** | 2020-06-16 21:00 | 35455 | 1 (ZARA) | 38.95 EUR | 4 |
 
+#### Escenarios Negativos (KO) - `pricesko.feature`
+
+Casos de prueba para validación de errores y casos extremos:
+
+**Casos de Error de Validación (Status 400):**
+- **KO-7**: Petición con fecha en formato inválido
+- **KO-8**: Petición con productId en formato string (inválido)  
+- **KO-9**: Petición con brandId en formato string (inválido)
+
+**Casos de Resultado Vacío (Status 200 con array vacío):**
+- **KO-10**: Producto inexistente debe devolver lista vacía
+- **KO-11**: Marca inexistente debe devolver lista vacía
+- **KO-12**: Fecha fuera del rango de precios disponible debe devolver lista vacía
+- **KO-13**: Fecha futura fuera del rango de precios disponible debe devolver lista vacía
+- **KO-14**: Combinación de producto y marca inexistentes debe devolver lista vacía
+
 ### Archivos de Test E2E
 
 ```
 src/test/java/com/inditex/code/prices/e2e/
 ├── KarateTests.java           # Runner de Karate
 └── prices/
-    └── prices.feature         # Escenarios de prueba
+    ├── pricesok.feature       # Escenarios positivos (Tests 1-5)
+    └── pricesko.feature       # Escenarios negativos y casos de error (Tests KO-7 a KO-14)
 ```
 
 ### Ver Reportes E2E
@@ -304,12 +320,24 @@ target/karate-reports/
 
 ### Validaciones de los Tests E2E
 
+#### Tests Positivos (OK):
 Cada test verifica:
 - ✅ **Status Code 200** - Respuesta exitosa
 - ✅ **Estructura de respuesta** - Formato JSON correcto
 - ✅ **Precio aplicable** - Precio correcto según fecha y prioridad
 - ✅ **Lista de precios** - Lista correcta aplicada
 - ✅ **Metadatos** - Brand ID y Product ID correctos
+
+#### Tests Negativos (KO):
+**Para casos de error de validación (400):**
+- ✅ **Status Code 400** - Bad Request
+- ✅ **Mensaje de error** - Error y mensaje presentes en respuesta
+- ✅ **Validación de parámetros** - Formatos inválidos detectados
+
+**Para casos de resultado vacío (200):**
+- ✅ **Status Code 200** - Respuesta exitosa pero sin datos
+- ✅ **Array vacío** - Respuesta vacía para datos inexistentes
+- ✅ **Longitud cero** - Validación de array.length == 0
 
 ---
 
