@@ -1,0 +1,176 @@
+openapi: 3.1.0
+info:
+  title: Prices Service API
+  description: |
+    Code challenge for GFT tech lead role position.
+    This service provides product pricing information and health check capabilities.
+  version: 1.0.0
+  contact:
+    name: GFT Code Challenge
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8083/v1
+    description: Local development server
+
+tags:
+  - name: Health
+    description: Health check operations
+  - name: Prices
+    description: Product pricing operations
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Get service health status
+      description: Check the health status of the service
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+        "503":
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /prices:
+    get:
+      tags:
+        - Prices
+      summary: Get product prices
+      description: |
+        Retrieve product prices with optional filtering by active date, product ID, and brand ID.
+        When no filters are applied, returns all available prices.
+      operationId: getPrices
+      parameters:
+        - name: activeDate
+          in: query
+          description: Active date to filter prices (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date-time
+          example: "2020-06-14T10:00:00"
+        - name: productId
+          in: query
+          description: Product ID to filter by
+          required: false
+          schema:
+            type: integer
+            format: int64
+          example: 35455
+        - name: brandId
+          in: query
+          description: Brand ID to filter by
+          required: false
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        "200":
+          description: Prices retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PriceResponse"
+        "400":
+          description: Bad request - invalid filter parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: Health status of the service
+          enum:
+            - UP
+            - DOWN
+          example: UP
+
+    PriceResponse:
+      type: object
+      required:
+        - productId
+        - brandId
+        - priceList
+        - startDate
+        - endDate
+        - price
+      properties:
+        productId:
+          type: integer
+          format: int64
+          description: Product identifier
+          example: 35455
+        brandId:
+          type: integer
+          format: int64
+          description: Brand identifier
+          example: 1
+        priceList:
+          type: integer
+          format: int32
+          description: Price list identifier
+          example: 1
+        startDate:
+          type: string
+          format: date-time
+          description: Start date when price is applicable
+          example: "2020-06-14T00:00:00"
+        endDate:
+          type: string
+          format: date-time
+          description: End date when price is applicable
+          example: "2020-12-31T23:59:59"
+        price:
+          type: number
+          format: double
+          description: Price value
+          example: 35.50
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: "BAD_REQUEST"
+        message:
+          type: string
+          description: Error message
+          example: "Invalid request parameters"
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+          example: "2020-06-14T10:00:00"

@@ -3,6 +3,7 @@ package com.inditex.code.prices.infrastructure.in.controller;
 import com.inditex.code.prices.application.services.price.validation.PriceFilterValidator;
 import com.inditex.code.prices.domain.dto.price.PriceResponseDto;
 import com.inditex.code.prices.domain.port.PricePort;
+import com.inditex.code.prices.domain.mapper.PriceMapper;
 import com.inditex.code.prices.infrastructure.in.exception.GlobalExceptionHandler;
 
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,6 +48,12 @@ class PriceControllerValidationTest {
         }
 
         @Bean
+        @Primary
+        public PriceMapper mockPriceMapper() {
+            return Mockito.mock(PriceMapper.class);
+        }
+
+        @Bean
         public GlobalExceptionHandler exceptionHandler() {
             return new GlobalExceptionHandler();
         }
@@ -57,20 +65,34 @@ class PriceControllerValidationTest {
     @Autowired
     private PricePort pricePort;
 
+    @Autowired
+    private PriceMapper priceMapper;
+
     @Test
     void testValidRequestParams() throws Exception {
         // Given
-        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime activeDateTime = OffsetDateTime.of(2020, 6, 14, 10, 0, 0, 0, ZoneOffset.UTC);
         PriceResponseDto priceResponseDto = new PriceResponseDto(
-                35455L, 1L, 1, now, now.plusDays(1),
+                35455L, 1L, 1,
+                activeDateTime.toLocalDateTime(),
+                activeDateTime.plusDays(1).toLocalDateTime(),
                 new BigDecimal("35.50"));
+
+        // Mock the API response that the mapper would return
+        com.inditex.code.prices.api.model.PriceResponse apiResponse = new com.inditex.code.prices.api.model.PriceResponse()
+                .productId(35455L)
+                .brandId(1L)
+                .priceList(1)
+                .price(35.50);
 
         when(pricePort.getPricesFiltered(any(), eq(35455L), eq(1L)))
                 .thenReturn(List.of(priceResponseDto));
+        when(priceMapper.toApiModelList(List.of(priceResponseDto)))
+                .thenReturn(List.of(apiResponse));
 
         // When & Then
         mockMvc.perform(get("/prices")
-                .param("activeDate", now.toString())
+                .param("activeDate", "2020-06-14T10:00:00Z")
                 .param("productId", "35455")
                 .param("brandId", "1"))
                 .andExpect(status().isOk())
@@ -104,11 +126,12 @@ class PriceControllerValidationTest {
         // Given
         when(pricePort.getPricesFiltered(any(), any(), any()))
                 .thenReturn(Collections.emptyList());
+        when(priceMapper.toApiModelList(Collections.emptyList()))
+                .thenReturn(Collections.emptyList());
 
         // When & Then
-        LocalDateTime now = LocalDateTime.now();
         mockMvc.perform(get("/prices")
-                .param("activeDate", now.toString())
+                .param("activeDate", "2020-06-14T10:00:00Z")
                 .param("productId", "99999")
                 .param("brandId", "1"))
                 .andExpect(status().isOk())

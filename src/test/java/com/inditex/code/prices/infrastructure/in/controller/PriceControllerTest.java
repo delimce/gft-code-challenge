@@ -3,6 +3,7 @@ package com.inditex.code.prices.infrastructure.in.controller;
 import com.inditex.code.prices.application.services.price.validation.PriceFilterValidator;
 import com.inditex.code.prices.domain.dto.price.PriceResponseDto;
 import com.inditex.code.prices.domain.port.PricePort;
+import com.inditex.code.prices.domain.mapper.PriceMapper;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ class PriceControllerTest {
         @MockitoBean
         private PriceFilterValidator validator;
 
+        @MockitoBean
+        private PriceMapper priceMapper;
+
         @Test
         void getPrices_shouldReturnListOfPrices() throws Exception {
                 // Given
@@ -49,7 +53,23 @@ class PriceControllerTest {
 
                 List<PriceResponseDto> prices = Arrays.asList(price1, price2);
 
+                // Create API model responses that the mapper would return
+                com.inditex.code.prices.api.model.PriceResponse apiPrice1 = new com.inditex.code.prices.api.model.PriceResponse()
+                                .productId(35455L)
+                                .brandId(1L)
+                                .priceList(1)
+                                .price(35.50);
+
+                com.inditex.code.prices.api.model.PriceResponse apiPrice2 = new com.inditex.code.prices.api.model.PriceResponse()
+                                .productId(35455L)
+                                .brandId(1L)
+                                .priceList(2)
+                                .price(25.45);
+
+                List<com.inditex.code.prices.api.model.PriceResponse> apiPrices = Arrays.asList(apiPrice1, apiPrice2);
+
                 when(pricePort.getPrices()).thenReturn(prices);
+                when(priceMapper.toApiModelList(prices)).thenReturn(apiPrices);
 
                 // When & Then
                 mockMvc.perform(get("/prices"))

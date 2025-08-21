@@ -6,11 +6,12 @@ Servicio de listado de precios desarrollado con Spring Boot como parte del desaf
 
 1. [Prerrequisitos](#-prerrequisitos)
 2. [Arquitectura de Diseño](#-arquitectura-de-diseño)
-3. [Gestión de Excepciones](#-gestión-de-excepciones)
-4. [Esquema de Base de Datos](#-esquema-de-base-de-datos)
-5. [Ejecutar la Aplicación y Acceso a Swagger](#-ejecutar-la-aplicación-y-acceso-a-swagger)
-6. [Ejecución de Tests](#-ejecución-de-tests)
-7. [Ejecución de Tests E2E](#-ejecución-de-tests-e2e)
+3. [Enfoque API-First](#-enfoque-api-first)
+4. [Gestión de Excepciones](#-gestión-de-excepciones)
+5. [Esquema de Base de Datos](#-esquema-de-base-de-datos)
+6. [Ejecutar la Aplicación y Acceso a Swagger](#-ejecutar-la-aplicación-y-acceso-a-swagger)
+7. [Ejecución de Tests](#-ejecución-de-tests)
+8. [Ejecución de Tests E2E](#-ejecución-de-tests-e2e)
 
 ## 🛠️ Prerrequisitos
 
@@ -60,8 +61,96 @@ src/main/java/com/inditex/code/prices/
 - **Flyway** - Migración de base de datos
 - **MapStruct 1.6.2** - Mapeo automático entre entidades y DTOs
 - **Lombok** - Reducción de código boilerplate
+- **openapi-generator** - Generación automática de código
 - **SpringDoc OpenAPI** - Documentación en formato swagger
 - **Karate 1.4.1** - Testing E2E
+
+## 🔧 Enfoque API-First
+
+Este proyecto implementa un **enfoque API-First** utilizando OpenAPI 3.1.0 y generación automática de código, garantizando que la API sea el contrato principal y que toda la implementación se derive de la especificación.
+
+### Implementación del Patrón API-First
+
+#### 1. Especificación OpenAPI como Fuente de Verdad
+
+La API se define completamente en el archivo `src/main/resources/api/openapi.yaml`:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Prices Service API
+  description: |
+    Code challenge for GFT tech lead role position.
+    This service provides product pricing information and health check capabilities.
+  version: 1.0.0
+
+paths:
+  /health:
+    get:
+      # Endpoint de health check
+  /prices:
+    get:
+      # Endpoint principal de consulta de precios
+```
+
+#### 2. Generación Automática de Código
+
+
+**Artefactos Generados Automáticamente**:
+- `HealthApi.java` - Interfaz para el controlador de health
+- `PricesApi.java` - Interfaz para el controlador de precios  
+- `HealthStatus.java` - Modelo de respuesta de health
+- `PriceResponse.java` - Modelo de respuesta de precios
+- `ErrorResponse.java` - Modelo estándar de errores
+
+#### 3. Implementación de Interfaces Generadas
+
+Los controladores implementan las interfaces generadas automáticamente:
+
+```java
+@RestController
+public class HealthCheckController implements HealthApi {
+    @Override
+    public ResponseEntity<com.inditex.code.prices.api.model.HealthStatus> _getHealth() {
+        // Implementación usando mappers
+    }
+}
+
+@RestController  
+public class PriceController implements PricesApi {
+    @Override
+    public ResponseEntity<List<com.inditex.code.prices.api.model.PriceResponse>> _getPrices(
+            OffsetDateTime activeDate, Long productId, Long brandId) {
+        // Implementación usando mappers y servicios de dominio
+    }
+}
+```
+
+#### 4. Mappers para Transformación de Modelos
+
+**PriceMapper** - Conversión entre modelos de dominio y API:
+
+```java
+@Mapper(componentModel = "spring")
+public interface PriceMapper {
+    // Conversión de DTOs del dominio a modelos de la API
+    List<com.inditex.code.prices.api.model.PriceResponse> toApiModelList(List<PriceResponseDto> dtos);
+    
+    // Utilitarios de conversión de fechas LocalDateTime ↔ OffsetDateTime
+    default OffsetDateTime toOffsetDateTime(LocalDateTime localDateTime) { /*...*/ }
+    default LocalDateTime toLocalDateTime(OffsetDateTime offsetDateTime) { /*...*/ }
+}
+```
+
+**HealthMapper** - Conversión de estados de salud:
+
+```java
+@Mapper(componentModel = "spring")
+public interface HealthMapper {
+    com.inditex.code.prices.api.model.HealthStatus toApiModel(HealthStatus domainStatus);
+}
+```
+
 
 
 ## ⚠️ Gestión de Excepciones
