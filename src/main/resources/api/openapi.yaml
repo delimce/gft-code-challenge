@@ -60,7 +60,7 @@ paths:
           schema:
             type: string
             format: date-time
-          example: "2020-06-14T10:00:00"
+            example: "2020-06-14T10:00:00Z"
         - name: productId
           in: query
           description: Product ID to filter by
@@ -68,7 +68,7 @@ paths:
           schema:
             type: integer
             format: int64
-          example: 35455
+            example: 35455
         - name: brandId
           in: query
           description: Brand ID to filter by
@@ -76,7 +76,7 @@ paths:
           schema:
             type: integer
             format: int64
-          example: 1
+            example: 1
       responses:
         "200":
           description: Prices retrieved successfully
@@ -143,12 +143,12 @@ components:
           type: string
           format: date-time
           description: Start date when price is applicable
-          example: "2020-06-14T00:00:00"
+          example: "2020-06-14T00:00:00Z"
         endDate:
           type: string
           format: date-time
           description: End date when price is applicable
-          example: "2020-12-31T23:59:59"
+          example: "2020-12-31T23:59:59Z"
         price:
           type: number
           format: double
@@ -173,4 +173,4 @@ components:
           type: string
           format: date-time
           description: Error timestamp
-          example: "2020-06-14T10:00:00"
+          example: "2020-06-14T10:00:00Z"

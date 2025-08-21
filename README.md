@@ -304,7 +304,7 @@ curl http://localhost:8083/v1/health
 GET /v1/prices?activeDate={fecha}&productId={id}&brandId={id}
 
 # Ejemplo:
-curl "http://localhost:8083/v1/prices?activeDate=2020-06-14T10:00:00&productId=35455&brandId=1"
+curl "http://localhost:8083/v1/prices?activeDate=2020-06-14T10:00:00Z&productId=35455&brandId=1"
 ```
 
 **Parámetros:**
